@@ -3,8 +3,10 @@
 ############## START USER CONFIGURABLE ##############
 # Where necessary, also update the shebang above.
 #       It should be bash, not tsch, csh, or sh.
-# The below line should work in most cases, if you
-#       leave assh.bash and rssh.bash in your home
+# The below line should work in most cases. It should
+#	be the path to the script. I could code the
+#	script to be aware of it's path automatically
+#	but... Well I probably will. Someday.
 SCRIPT_PATH="~/"
 # Set the string below to the header you want to see above the list
 HEADER="ASSH"$'\n'
