@@ -7,19 +7,23 @@
 #       leave assh.bash and rssh.bash in your home
 SCRIPT_PATH="~/"
 # Set the string below to the header you want to see above the list
-HEADER="a=Azure"$'\n'"l=Legacy(AWS)"$'\n'"v=VPC(AWS)"$'\n'"o=Office(external)"$'\n'"lo=Office(local)"$'\n'
-############### END USER CONFIGURABLE ###############
- 
-# Used to define something the user specifically wants to see
-USERFILTER=""
+HEADER="ASSH"$'\n'
 # Used to hide things the user never needs, but still need to be in the file
 # Grep Regex format
 SYSTEMFILTER="bastion-o|bastion-v"
+############### END USER CONFIGURABLE ###############
+
+#if [ "$STY" == "" ]; then
+#	screen -m "cd ${SCRIPT_PATH}; ./assh.bash"
+#fi
+ 
+# Used to define something the user specifically wants to see
+USERFILTER=""
 FANCYDISP=0
 clear
 while true
 do
-#   clear
+#	clear
 if [[ -z $1 ]]; then
 		echo
 		COUNT=1
@@ -28,8 +32,11 @@ if [[ -z $1 ]]; then
 		HOSTACTLIST=''
 		HOSTS=''
 		HOSTSTEMP=''
-		for HOSTITEM in $(cat ~/.ssh/config | grep host | grep -v hostname | grep -v "*" \
-			| grep -Ev "^#" | awk -F' ' '{print $2}' | sort)
+		METALIST="$(cat ~/.ssh/config | grep host | grep -v hostname | grep -v "*" \
+		| grep -Ev "^#" | awk -F' ' '{print $2}' | sort)"
+		METALIST="$METALIST $(ls ~/acefile/scripts)"
+#echo "$METALIST"
+		for HOSTITEM in $(echo "$METALIST")
 		do
 			# Decide of a host matches the filters, and add it to the list
 			ADDEDHOST=$HOSTITEM
@@ -132,7 +139,9 @@ if [[ -z $1 ]]; then
 			;;
 			[0-9]*)
 				# if condition to determine if I need a new screen tab, or just to start RDP
-				if [[ "${HOSTACTLIST[$SELECTION]}" =~ ^rdp ]]; then
+				if [[ "${HOSTACTLIST[$SELECTION]}" =~ bash$ ]]; then
+					screen -t ${HOSTACTLIST[$SELECTION]} bash -c "bash /home/asmith/acefile/scripts/${HOSTACTLIST[$SELECTION]}; echo; echo; read -p 'Continue (end)...'"
+				elif [[ "${HOSTACTLIST[$SELECTION]}" =~ ^rdp ]]; then
 					screen -t ${HOSTACTLIST[$SELECTION]} bash -c "bash /home/asmith/acefile/versium/rdp/${HOSTACTLIST[$SELECTION]}.bash"
 				else
 					# Newtab/Connection condition
