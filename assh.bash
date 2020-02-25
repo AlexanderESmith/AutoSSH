@@ -7,8 +7,13 @@
 #	be the path to the script. I could code the
 #	script to be aware of it's path automatically
 #	but... Well I probably will. Someday.
-SCRIPT_PATH="~/"
+ASSH_SCRIPT_PATH="~/"
+# The following line defines the folder that AutoSSH will look for
+#	user scripts, so they can be selected from the main menu
+USER_SCRIPT_PATH="~/scripts/"
 # Set the string below to the header you want to see above the list
+RDP_USERNAME='user'
+RDP_RESOLUTION='1300x700'
 HEADER="ASSH"$'\n'
 # Used to hide things the user never needs, but still need to be in the file
 # Grep Regex format
@@ -16,7 +21,7 @@ SYSTEMFILTER="bastion-o|bastion-v"
 ############### END USER CONFIGURABLE ###############
 
 #if [ "$STY" == "" ]; then
-#	screen -m "cd ${SCRIPT_PATH}; ./assh.bash"
+#	screen -m "cd ${ASSH_SCRIPT_PATH}; ./assh.bash"
 #fi
  
 # Used to define something the user specifically wants to see
@@ -36,7 +41,7 @@ if [[ -z $1 ]]; then
 		HOSTSTEMP=''
 		METALIST="$(cat ~/.ssh/config | grep host | grep -v hostname | grep -v "*" \
 		| grep -Ev "^#" | awk -F' ' '{print $2}' | sort)"
-		METALIST="$METALIST $(ls ~/acefile/scripts)"
+		METALIST="$METALIST $(ls ${USER_SCRIPT_PATH})"
 #echo "$METALIST"
 		for HOSTITEM in $(echo "$METALIST")
 		do
@@ -142,15 +147,19 @@ if [[ -z $1 ]]; then
 			[0-9]*)
 				# if condition to determine if I need a new screen tab, or just to start RDP
 				if [[ "${HOSTACTLIST[$SELECTION]}" =~ bash$ ]]; then
-					screen -t ${HOSTACTLIST[$SELECTION]} bash -c "bash /home/asmith/acefile/scripts/${HOSTACTLIST[$SELECTION]}; echo; echo; read -p 'Continue (end)...'"
+					screen -t ${HOSTACTLIST[$SELECTION]} bash -c "bash ${USER_SCRIPT_PATH}/${HOSTACTLIST[$SELECTION]}; echo; echo; read -p 'Continue (end)...'"
 				elif [[ "${HOSTACTLIST[$SELECTION]}" =~ ^rdp ]]; then
-					screen -t ${HOSTACTLIST[$SELECTION]} bash -c "bash /home/asmith/acefile/versium/rdp/${HOSTACTLIST[$SELECTION]}.bash"
+					if [ -z "${ACE_RDP_PASSWORD}" ]; then
+						read -s -p "Enter RDP Password: " ACE_RDP_PASSWORD
+					fi
+					# The hostname it will attempt to connect to is the named entry in ssh/config minus the "rdp_" prefix
+					screen -t ${HOSTACTLIST[$SELECTION]} bash -c "xfreerdp /clipboard /size:${RDP_RESOLUTION} /u:${DEFAULT_RDP_USERNAM} /p:${ACE_RDP_PASSWORD} /v:$(echo "${HOSTACTLIST[$SELECTION]}" | sed 's/^rdp_//')"
 				else
 					# Newtab/Connection condition
-									ASSHRESULT="$(screen -Q select ${HOSTACTLIST[$SELECTION]})"
-									if [[ -n "$ASSHRESULT" ]]; then
-											screen -t ${HOSTACTLIST[$SELECTION]} bash -c "bash ${SCRIPT_PATH}/assh.bash ${HOSTACTLIST[$SELECTION]}"
-									fi
+					ASSHRESULT="$(screen -Q select ${HOSTACTLIST[$SELECTION]})"
+					if [[ -n "$ASSHRESULT" ]]; then
+							screen -t ${HOSTACTLIST[$SELECTION]} bash -c "bash ${ASSH_SCRIPT_PATH}/assh.bash ${HOSTACTLIST[$SELECTION]}"
+					fi
 				fi
 			;;
 			*)
