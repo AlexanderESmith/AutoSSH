@@ -1,0 +1,24 @@
+# Recommended screen settings for ASSH
+
+# None of these are strictly necessary, but they are useful in various ways
+
+# Set a default title for new tabs
+shelltitle "---"
+
+# ASSH uses the title to decide whether to open a new tab, or switch to an existing one
+# The default title set by ASSH is the name of the option you select in the main menu
+# Some servers try to take over the title because they think it's useful (it's not)
+# This setting disallows $PS1 escape-based title updates (see also: dynamictitle)
+defdynamictitle off
+
+# My hardstatus line (just a list of windows and the date/time)
+hardstatus on
+hardstatus alwayslastline
+hardstatus string '%{= Kw}[ %w %=] [%y/%m/%d %c:%s]'
+windowlist string "%3n %t | %3n %h %f "
+
+# Automatically detach on hangup
+autodetach on
+
+# Keep my shell
+shell -$SHELL
