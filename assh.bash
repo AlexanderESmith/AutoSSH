@@ -149,11 +149,29 @@ if [[ -z $1 ]]; then
 				if [[ "${HOSTACTLIST[$SELECTION]}" =~ bash$ ]]; then
 					screen -t ${HOSTACTLIST[$SELECTION]} bash -c "bash ${USER_SCRIPT_PATH}/${HOSTACTLIST[$SELECTION]}; echo; echo; read -p 'Continue (end)...'"
 				elif [[ "${HOSTACTLIST[$SELECTION]}" =~ ^rdp ]]; then
-					if [ -z "${ACE_RDP_PASSWORD}" ]; then
+					while [ -z "${ACE_RDP_PASSWORD}" ]; do
 						read -s -p "Enter RDP Password: " ACE_RDP_PASSWORD
-					fi
+						echo
+					done
+					echo
+					echo "1: 1279x683 2: 2550x1355"
+					read -s -p "Choose Res: " ACE_RDP_RES_SELECT
+					case $ACE_RDP_RES_SELECT in
+						1)
+							ACE_RDP_RES="1279x683"
+						;;
+						2)
+							ACE_RDP_RES="2550x1355"
+						;;
+						*)
+							ACE_RDP_RES="1279x683"
+						;;
+					esac
 					# The hostname it will attempt to connect to is the named entry in ssh/config minus the "rdp_" prefix
-					screen -t ${HOSTACTLIST[$SELECTION]} bash -c "xfreerdp /clipboard /size:${RDP_RESOLUTION} /u:${DEFAULT_RDP_USERNAM} /p:${ACE_RDP_PASSWORD} /v:$(echo "${HOSTACTLIST[$SELECTION]}" | sed 's/^rdp_//')"
+					RDP_CMD="xfreerdp /clipboard /size:${RDP_RESOLUTION} /u:${RDP_USERNAME} /p:${ACE_RDP_PASSWORD} /v:$(echo "${HOSTACTLIST[$SELECTION]}" | sed 's/^rdp_//')"
+					echo $RDP_CMD | sed 's/\/p:.*/\/p:******/g'
+					read -p "Continue? (enter|ctrl+c)"
+					screen -t ${HOSTACTLIST[$SELECTION]} bash -c "$RDP_CMD"
 				else
 					# Newtab/Connection condition
 					ASSHRESULT="$(screen -Q select ${HOSTACTLIST[$SELECTION]})"
