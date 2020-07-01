@@ -13,7 +13,6 @@ ASSH_SCRIPT_PATH="~/"
 USER_SCRIPT_PATH="~/scripts/"
 # Set the string below to the header you want to see above the list
 RDP_USERNAME='user'
-RDP_RESOLUTION='1300x700'
 HEADER="ASSH"$'\n'
 # Used to hide things the user never needs, but still need to be in the file
 # Grep Regex format
@@ -168,7 +167,7 @@ if [[ -z $1 ]]; then
 						;;
 					esac
 					# The hostname it will attempt to connect to is the named entry in ssh/config minus the "rdp_" prefix
-					RDP_CMD="xfreerdp /clipboard /size:${RDP_RESOLUTION} /u:${RDP_USERNAME} /p:${ACE_RDP_PASSWORD} /v:$(echo "${HOSTACTLIST[$SELECTION]}" | sed 's/^rdp_//')"
+					RDP_CMD="xfreerdp /clipboard /size:${ACE_RDP_RES} /u:${RDP_USERNAME} /p:${ACE_RDP_PASSWORD} /v:$(echo "${HOSTACTLIST[$SELECTION]}" | sed 's/^rdp_//')"
 					echo $RDP_CMD | sed 's/\/p:.*/\/p:******/g'
 					read -p "Continue? (enter|ctrl+c)"
 					screen -t ${HOSTACTLIST[$SELECTION]} bash -c "$RDP_CMD"
