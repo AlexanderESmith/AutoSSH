@@ -16,7 +16,7 @@ RDP_USERNAME='user'
 HEADER="ASSH"$'\n'
 # Used to hide things the user never needs, but still need to be in the file
 # Grep Regex format
-SYSTEMFILTER="bastion-o|bastion-v"
+SYSTEMFILTER=""
 ############### END USER CONFIGURABLE ###############
 
 #if [ "$STY" == "" ]; then
@@ -147,6 +147,8 @@ if [[ -z $1 ]]; then
 				# if condition to determine if I need a new screen tab, or just to start RDP
 				if [[ "${HOSTACTLIST[$SELECTION]}" =~ bash$ ]]; then
 					screen -t ${HOSTACTLIST[$SELECTION]} bash -c "bash ${USER_SCRIPT_PATH}/${HOSTACTLIST[$SELECTION]}; echo; echo; read -p 'Continue (end)...'"
+				elif [[ "${HOSTACTLIST[$SELECTION]}" =~ expect$ ]]; then
+					screen -t ${HOSTACTLIST[$SELECTION]} bash -c "expect ${USER_SCRIPT_PATH}/${HOSTACTLIST[$SELECTION]}; echo; echo; read -p 'Continue (end)...'"
 				elif [[ "${HOSTACTLIST[$SELECTION]}" =~ ^rdp ]]; then
 					while [ -z "${ACE_RDP_PASSWORD}" ]; do
 						read -s -p "Enter RDP Password: " ACE_RDP_PASSWORD
