@@ -39,3 +39,4 @@ Shows all servers in your ~/.ssh/config file and gives you a menu to connect to 
 # Todo
 * Add toggle for opening the existing tab or intentionally opening a new one
 * Maybe change the name from AutoSSH (because **ass**h, and also it supports more than just SSH)
+* Add a toggle for verbose output (to troubleshoot newly added servers)
