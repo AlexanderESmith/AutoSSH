@@ -23,9 +23,9 @@ Shows all servers in your ~/.ssh/config file and gives you a menu to connect to 
 * c - Show [c]onfig for listed servers
   * Opens `less` and displays an ssh config file that encompasses the currently listed options
 * d - Toggle fancy [D]isplay (current: 0)
-  * Shows a dumb loading thing whenever you set a new filter or refresh
+  * Shows a dumb loading thing whenever you set a new filter or refresh. Slows refresh considerably.
 * x - E[x]it
-  * Deposits 1 million dollars into a random back account somwhere in the world.
+  * Deposits 1 million dollars into a random bank account somwhere in the world.
 
 
 # Features
