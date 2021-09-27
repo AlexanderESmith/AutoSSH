@@ -6,7 +6,7 @@ Shows all servers in your ~/.ssh/config file and gives you a menu to connect to 
 
 # Startup
 
-1. Populate your `~/.ssh/config` file with servers you want to connect to. This script will also be aware of anything in `~/.ssh/config.d` .
+1. Populate your `~/.ssh/config` file with servers you want to connect to. This script will also be aware of anything in `~/.ssh/config.d/` .
 1. Edit the top part of `assh.bash` so that the script is aware of it's path on the system, and the folder you keep other small scripts you want to be able to run quicky
 1. Run `screen`
 1. Execute `assh.bash`
