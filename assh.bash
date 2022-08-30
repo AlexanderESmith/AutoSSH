@@ -38,7 +38,7 @@ if [[ -z $1 ]]; then
 		HOSTACTLIST=''
 		HOSTS=''
 		HOSTSTEMP=''
-		METALIST="$(cat ~/.ssh/config ~/.ssh/config.d/* | grep host | grep -v hostname | grep -v "*" \
+		METALIST="$(cat ~/.ssh/config $(find ~/.ssh/config.d/ -type f) | grep host | grep -v hostname | grep -v "*" \
 		| grep -Ev "^#" | awk -F' ' '{print $2}' | sort)"
 		METALIST="$METALIST $(ls ${USER_SCRIPT_PATH})"
 #echo "$METALIST"
