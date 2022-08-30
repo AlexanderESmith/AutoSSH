@@ -36,6 +36,10 @@ Shows all servers in your ~/.ssh/config file and gives you a menu to connect to 
 * If that server is already open, you switch to that tab instead of opening a new one
 * Supports the use of external scripts (e.g. using vncviewer, xfreerdp, custom bash scripts, etc)
 
+# Known issues
+* If the remote server changes the screen title, duplicate tab prevention doesn't work
+* Since `~/.ssh/config.d/` was added, editing the file with `e` basically stopped working (since it only edits `~/.ssh/config`
+
 # Todo
 * Add toggle for opening the existing tab or intentionally opening a new one
 * Maybe change the name from AutoSSH (because **ass**h, and also it supports more than just SSH)
