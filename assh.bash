@@ -44,7 +44,6 @@ do
 	clear
 if [[ -z $1 ]]; then
 		echo
-<<<<<<< HEAD
 		IFS=$'\n'
 		# Set list for of options for the menu
 		OPTIONS=($(cat ~/.ssh/config ~/.ssh/config.d/* | grep host | grep -v hostname | grep -v "*" \
@@ -67,74 +66,6 @@ if [[ -z $1 ]]; then
 		echo
 		IFS=$'\n'; for I in $(echo "${!OPTIONS[*]}"); do echo "$I: ${OPTIONS[$I]}"; done | awk '{printf "%6s %s \n", $1, $2}' | column
 		if [ "$USERFILTER" ]; then
-=======
-		COUNT=1
-		DISPCOUNT=1
-		HOSTDISPLIST=''
-		HOSTACTLIST=''
-		HOSTS=''
-		HOSTSTEMP=''
-		METALIST="$(cat ~/.ssh/config $(find ~/.ssh/config.d/ -type f) | grep host | grep -v hostname | grep -v "*" \
-		| grep -Ev "^#" | awk -F' ' '{print $2}' | sort)"
-		METALIST="$METALIST $(ls ${USER_SCRIPT_PATH})"
-#echo "$METALIST"
-		for HOSTITEM in $(echo "$METALIST")
-		do
-			# Decide of a host matches the filters, and add it to the list
-			ADDEDHOST=$HOSTITEM
-			for FILTERITEM in $(echo "$USERFILTER")
-			do
-				ADDEDHOST="$(echo $ADDEDHOST | grep -E $FILTERITEM)"
-			done
-			HOSTS="$HOSTS $ADDEDHOST"
-			# Display during search
-			if [ "$FANCYDISP" == "1" ]; then
-				HOSTSTEMP="$(echo "$HOSTS" | sed 's/ /\n/g' | column -x)"
-				if [ -n "$ADDEDHOST" ] ; then
-					DISPADDEDHOST=$ADDEDHOST
-				fi
-				if [ "$DISPCOUNT" -lt "10" ] ; then
-					printf "    $DISPCOUNT $DISPADDEDHOST                                                                         \r"
-				elif [ "$DISPCOUNT" -lt "100" ] ; then
-					printf "   $DISPCOUNT $DISPADDEDHOST                                                                         \r"
-				else
-					printf "  $DISPCOUNT $DISPADDEDHOST                                                                         \r"
-				fi
-				((DISPCOUNT++))
-			fi
-		done
-		for HOST in $(echo $HOSTS)
-		do
-			if [ "$COUNT" -lt "10" ] ; then
-				HOSTDISPLIST="$HOSTDISPLIST   $COUNT: $HOST"$'\n'
-			elif [ "$COUNT" -lt "100" ] ; then
-				HOSTDISPLIST="$HOSTDISPLIST  $COUNT: $HOST"$'\n'
-			else
-				HOSTDISPLIST="$HOSTDISPLIST $COUNT: $HOST"$'\n'
-			fi
-			HOSTACTLIST[$COUNT]="$HOST"
-			#HOSTACTLIST[$COUNT]="$HOST"$'\n'
-			((COUNT++))
-			done
-			clear
-			echo
-			echo $HEADER | column -t
-			echo
-			echo "$HOSTDISPLIST" | column
-			echo
-			if [ "$USERFILTER" ]; then
-				echo "Current filter:"
-				echo "$USERFILTER"
-				echo
-			fi
-			echo '[blank] - Refresh'
-			echo '	 f - [F]ilter (edit current)'
-			echo '	ff - [FF]ilter (blank prompt)'
-			echo '	 e - [E]dit'
-			echo '	 c - Show [c]onfig for listed servers'
-			echo "	 d - Toggle fancy [D]isplay (current: $FANCYDISP)"
-			echo '	 x - E[x]it'
->>>>>>> 124fde8d0884c73b87944bf8a3e53b67998cefc6
 			echo
 			echo "Current filter:"
 			echo "$USERFILTER"
