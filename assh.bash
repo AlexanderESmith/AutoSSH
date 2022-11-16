@@ -43,8 +43,17 @@ if [[ -z $1 ]]; then
 		#IFS=$'\r\n'
 		# Set list for of options for the menu
 		OPTIONS=($(cat ~/.ssh/config ~/.ssh/config.d/* | grep host | grep -v hostname | grep -v "*" \
-			| grep -Ev "^#" | awk -F' ' '{print $2}' | sort))
-		OPTIONS+=($(ls -1 ${USER_SCRIPT_PATH}))
+			| grep -Ev "^#" | awk -F' ' '{print $2}' | sort | uniq))
+		#OPTIONS+=($(ls -1 ${USER_SCRIPT_PATH}))
+		# Find the scripts
+		OPTIONS+=($(find ${USER_SCRIPT_PATH} | grep -E '.bash$|.sh$'))
+		# Take the user-defined script path out of the display name for the scripts
+		IFS=" "
+		for THIS_PATH in $(echo "${USER_SCRIPT_PATH}")
+		do
+			IFS=$'\n'
+			OPTIONS=($(echo "${OPTIONS[*]}" | sed "s|$THIS_PATH||g"))
+		done
 		# Filter entries based on config file and user defined filter
 		IFS=" "
 		for FILTERITEM in $(echo "$USERFILTER")
