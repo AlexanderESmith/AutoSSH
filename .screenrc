@@ -3,7 +3,7 @@
 # None of these are strictly necessary, but they are useful in various ways
 
 # Set a default title for new tabs
-shelltitle "---"
+shelltitle "~~~"
 
 # ASSH uses the title to decide whether to open a new tab, or switch to an existing one
 # The default title set by ASSH is the name of the option you select in the main menu
