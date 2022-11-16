@@ -33,22 +33,25 @@ source ~/.assh/config
 USERFILTER=""
 #FANCYDISP=0
 clear
-	# Filter entries based on config file and user defined filter
-	for FILTERITEM in $(echo "$USERFILTER")
-	do
-		OPTIONS=($(IFS=$'\n'; echo "${OPTIONS[*]}" | grep -E $FILTERITEM))
-	done
 
 while true
 do
-	clear
+clear
 if [[ -z $1 ]]; then
+
 		echo
-		IFS=$'\n'
+		#IFS=$'\r\n'
 		# Set list for of options for the menu
 		OPTIONS=($(cat ~/.ssh/config ~/.ssh/config.d/* | grep host | grep -v hostname | grep -v "*" \
 			| grep -Ev "^#" | awk -F' ' '{print $2}' | sort))
-		OPTIONS+=($(ls ${USER_SCRIPT_PATH}))
+		OPTIONS+=($(ls -1 ${USER_SCRIPT_PATH}))
+		# Filter entries based on config file and user defined filter
+		IFS=" "
+		for FILTERITEM in $(echo "$USERFILTER")
+		do
+			IFS=$'\n'
+			OPTIONS=($(echo "${OPTIONS[*]}" | grep -E $FILTERITEM))
+		done
 		# Set a list of additional, non-numerical options
 		EXTRA_OPTIONS=""
 		EXTRA_OPTIONS+=" [blank]: Refresh"$'\n'
