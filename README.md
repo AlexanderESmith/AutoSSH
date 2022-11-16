@@ -1,6 +1,10 @@
 # AutoSSH
 Automated server selection/connection via GNUScreen windows
 
+# Context
+This is a personal script that I've been working on for a long time. I keep offering it to people one-at-a-time, but it occurs to me that it might to a lot more good in the wild.
+This code comes without any representations that it is good, or undamaging (though, there's little chance that it could damage something, since it's just a fancy bash menu). This is a script I play with whenever I want a new feature, or to refine an old one. The code itself is not pretty. I doubt very much that it is POSIX.
+
 # Purpose
 Shows all servers in your ~/.ssh/config and ~/.ssh/config.d file(s) and gives you a menu to connect to them in an organized and efficiant way. Best when used with environments that contain many servers. Also shows scripts in a defined folder for quick execution.
 
