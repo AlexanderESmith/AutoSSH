@@ -38,29 +38,97 @@ while true
 do
 clear
 if [[ -z $1 ]]; then
-
 		echo
-		#IFS=$'\r\n'
-		# Set list for of options for the menu
-		OPTIONS=($(cat ~/.ssh/config ~/.ssh/config.d/* | grep host | grep -v hostname | grep -v "*" \
-			| grep -Ev "^#" | awk -F' ' '{print $2}' | sort | uniq))
-		#OPTIONS+=($(ls -1 ${USER_SCRIPT_PATH}))
-		# Find the scripts
-		OPTIONS+=($(find ${USER_SCRIPT_PATH} | grep -E '.bash$|.sh$'))
-		# Take the user-defined script path out of the display name for the scripts
-		IFS=" "
-		for THIS_PATH in $(echo "${USER_SCRIPT_PATH}")
+		COUNT=1
+		DISPCOUNT=1
+		HOSTDISPLIST=''
+		HOSTACTLIST=''
+		HOSTS=''
+		HOSTSTEMP=''
+		METALIST="$(cat ~/.ssh/config $(find ~/.ssh/config.d/ -type f) | grep host | grep -v hostname | grep -v "*" \
+		| grep -Ev "^#" | awk -F' ' '{print $2}' | sort | uniq)"
+		METALIST="$METALIST $(ls ${USER_SCRIPT_PATH})"
+		#echo "$METALIST"
+		for HOSTITEM in $(echo "$METALIST")
 		do
-			IFS=$'\n'
-			OPTIONS=($(echo "${OPTIONS[*]}" | sed "s|$THIS_PATH||g"))
+			# Decide of a host matches the filters, and add it to the list
+			ADDEDHOST=$HOSTITEM
+			for FILTERITEM in $(echo "$USERFILTER")
+			do
+				ADDEDHOST="$(echo $ADDEDHOST | grep -E $FILTERITEM)"
+			done
+			HOSTS="$HOSTS $ADDEDHOST"
+			# Display during search
+			if [ "$FANCYDISP" == "1" ]; then
+				HOSTSTEMP="$(echo "$HOSTS" | sed 's/ /\n/g' | column -x)"
+				if [ -n "$ADDEDHOST" ] ; then
+					DISPADDEDHOST=$ADDEDHOST
+				fi
+				if [ "$DISPCOUNT" -lt "10" ] ; then
+					printf "    $DISPCOUNT $DISPADDEDHOST                                                                         \r"
+				elif [ "$DISPCOUNT" -lt "100" ] ; then
+					printf "   $DISPCOUNT $DISPADDEDHOST                                                                         \r"
+				else
+					printf "  $DISPCOUNT $DISPADDEDHOST                                                                         \r"
+				fi
+				((DISPCOUNT++))
+			fi
 		done
-		# Filter entries based on config file and user defined filter
-		IFS=" "
-		for FILTERITEM in $(echo "$USERFILTER")
+		for HOST in $(echo $HOSTS)
 		do
-			IFS=$'\n'
-			OPTIONS=($(echo "${OPTIONS[*]}" | grep -E $FILTERITEM))
-		done
+			if [ "$COUNT" -lt "10" ] ; then
+				HOSTDISPLIST="$HOSTDISPLIST   $COUNT: $HOST"$'\n'
+			elif [ "$COUNT" -lt "100" ] ; then
+				HOSTDISPLIST="$HOSTDISPLIST  $COUNT: $HOST"$'\n'
+			else
+				HOSTDISPLIST="$HOSTDISPLIST $COUNT: $HOST"$'\n'
+			fi
+			HOSTACTLIST[$COUNT]="$HOST"
+			#HOSTACTLIST[$COUNT]="$HOST"$'\n'
+			((COUNT++))
+			done
+			clear
+			echo
+			echo $HEADER | column -t
+			echo
+			echo "$HOSTDISPLIST" | column
+			echo
+			if [ "$USERFILTER" ]; then
+				echo "Current filter:"
+				echo "$USERFILTER"
+				echo
+			fi
+#			echo '[blank] - Refresh'
+#			echo '	 f - [F]ilter (edit current)'
+#			echo '	ff - [FF]ilter (blank prompt)'
+#			echo '	 e - [E]dit'
+#			echo '	 c - Show [c]onfig for listed servers'
+#			echo "	 d - Toggle fancy [D]isplay (current: $FANCYDISP)"
+#			echo '	 x - E[x]it'
+#			echo
+#			read -p "Select server: " SELECTION
+#		echo
+#		#IFS=$'\r\n'
+#		# Set list for of options for the menu
+#		OPTIONS=($(cat ~/.ssh/config ~/.ssh/config.d/* | grep host | grep -v hostname | grep -v "*" \
+#			| grep -Ev "^#" | awk -F' ' '{print $2}' | sort | uniq))
+#		#OPTIONS+=($(ls -1 ${USER_SCRIPT_PATH}))
+#		# Find the scripts
+#		OPTIONS+=($(find ${USER_SCRIPT_PATH} | grep -E '.bash$|.sh$'))
+#		# Take the user-defined script path out of the display name for the scripts
+#		IFS=" "
+#		for THIS_PATH in $(echo "${USER_SCRIPT_PATH}")
+#		do
+#			IFS=$'\n'
+#			OPTIONS=($(echo "${OPTIONS[*]}" | sed "s|$THIS_PATH||g"))
+#		done
+#		# Filter entries based on config file and user defined filter
+#		IFS=" "
+#		for FILTERITEM in $(echo "$USERFILTER")
+#		do
+#			IFS=$'\n'
+#			OPTIONS=($(echo "${OPTIONS[*]}" | grep -E $FILTERITEM))
+#		done
 		# Set a list of additional, non-numerical options
 		EXTRA_OPTIONS=""
 		EXTRA_OPTIONS+=" [blank]: Refresh"$'\n'
@@ -74,16 +142,16 @@ if [[ -z $1 ]]; then
 			EXTRA_OPTIONS+="       w: [W]indow Reuse"$'\n'
 		fi
 		EXTRA_OPTIONS+="       x: E[x]it"$'\n'
-		echo $HEADER | column -t
-		echo
-		IFS=$'\n'; for I in $(echo "${!OPTIONS[*]}"); do echo "$I: ${OPTIONS[$I]}"; done | awk '{printf "%6s %s \n", $1, $2}' | column
-		if [ "$USERFILTER" ]; then
-			echo
-			echo "Current filter:"
-			echo "$USERFILTER"
-		fi
 		echo
 		echo -e "$EXTRA_OPTIONS";
+#		echo $HEADER | column -t
+#		echo
+#		IFS=$'\n'; for I in $(echo "${!OPTIONS[*]}"); do echo "$I: ${OPTIONS[$I]}"; done | awk '{printf "%6s %s \n", $1, $2}' | column
+#		if [ "$USERFILTER" ]; then
+#			echo
+#			echo "Current filter:"
+#			echo "$USERFILTER"
+#		fi
 			read -p "Select server: " SELECTION
 			case $SELECTION in
 				'')
@@ -101,11 +169,28 @@ if [[ -z $1 ]]; then
 					read -p "Showing config lines for listed servers in 'less'; (press enter to continue...)"
 					CONFIGLINES="$(echo "")"
 					for THISHOST in $HOSTDISPLIST; do
-						CONFIGLINES="$CONFIGLINES"$'\n'"$(cat ~/.ssh/config | grep -Ev '^#' | sed -e "/host $THISHOST/,/host /!d" | head -n"-1")"
+						CONFIGLINES="$CONFIGLINES"$'\n'"$(cat ~/.ssh/config ~/.ssh/config.d/* | grep -Ev '^#' | sed -e "/host $THISHOST/,/host /!d" | head -n"-1")"
 						#echo '~~~~~~'
 					done
 					CONFIGLINES="$CONFIGLINES"$'\n'"$(echo "")"
 					echo "$CONFIGLINES"$ | grep -Ev '^$|^\s*$' | less
+				;;
+#				c)
+#					read -p "Showing config lines for listed servers in 'less'; (press enter to continue...)"
+#					CONFIGLINES="$(echo "")"
+#					for THISHOST in $HOSTDISPLIST; do
+#						CONFIGLINES="$CONFIGLINES"$'\n'"$(cat ~/.ssh/config | grep -Ev '^#' | sed -e "/host $THISHOST/,/host /!d" | head -n"-1")"
+#						#echo '~~~~~~'
+#					done
+#					CONFIGLINES="$CONFIGLINES"$'\n'"$(echo "")"
+#					echo "$CONFIGLINES"$ | grep -Ev '^$|^\s*$' | less
+#				;;
+				d)
+					if [ "$FANCYDISP" == "0" ]; then
+						FANCYDISP=1
+					else
+						FANCYDISP=0
+					fi
 				;;
 				e)
 					#Exit condition
@@ -131,11 +216,11 @@ if [[ -z $1 ]]; then
 				;;
 				[0-9]*)
 					# if condition to determine if I need a new screen tab, or just to start RDP
-					if [[ "${OPTIONS[$SELECTION]}" =~ bash$ ]]; then
-						screen -t ${OPTIONS[$SELECTION]} bash -c "bash ${USER_SCRIPT_PATH}/${OPTIONS[$SELECTION]}; echo; echo; read -p 'Continue (end)...'"
-					elif [[ "${OPTIONS[$SELECTION]}" =~ expect$ ]]; then
-						screen -t ${OPTIONS[$SELECTION]} bash -c "expect ${USER_SCRIPT_PATH}/${OPTIONS[$SELECTION]}; echo; echo; read -p 'Continue (end)...'"
-					elif [[ "${OPTIONS[$SELECTION]}" =~ ^rdp ]]; then
+					if [[ "${HOSTACTLIST[$SELECTION]}" =~ bash$ ]]; then
+						screen -t ${HOSTACTLIST[$SELECTION]} bash -c "bash ${USER_SCRIPT_PATH}/${HOSTACTLIST[$SELECTION]}; echo; echo; read -p 'Continue (end)...'"
+					elif [[ "${HOSTACTLIST[$SELECTION]}" =~ expect$ ]]; then
+						screen -t ${HOSTACTLIST[$SELECTION]} bash -c "expect ${USER_SCRIPT_PATH}/${HOSTACTLIST[$SELECTION]}; echo; echo; read -p 'Continue (end)...'"
+					elif [[ "${HOSTACTLIST[$SELECTION]}" =~ ^rdp ]]; then
 						while [ -z "${ACE_RDP_PASSWORD}" ]; do
 							read -s -p "Enter RDP Password: " ACE_RDP_PASSWORD
 							echo
@@ -155,25 +240,75 @@ if [[ -z $1 ]]; then
 							;;
 						esac
 						# The hostname it will attempt to connect to is the named entry in ssh/config minus the "rdp_" prefix
-						RDP_CMD="xfreerdp /clipboard /size:${ACE_RDP_RES} /u:${RDP_USERNAME} /p:${ACE_RDP_PASSWORD} /v:$(echo "${OPTIONS[$SELECTION]}" | sed 's/^rdp_//')"
+						RDP_CMD="xfreerdp /clipboard /size:${ACE_RDP_RES} /u:${RDP_USERNAME} /p:${ACE_RDP_PASSWORD} /v:$(echo "${HOSTACTLIST[$SELECTION]}" | sed 's/^rdp_//')"
 						echo $RDP_CMD | sed 's/\/p:.*/\/p:******/g'
 						read -p "Continue? (enter|ctrl+c)"
-						screen -t ${OPTIONS[$SELECTION]} bash -c "$RDP_CMD"
+						screen -t ${HOSTACTLIST[$SELECTION]} bash -c "$RDP_CMD"
 					else
+#						# Newtab/Connection condition
+#						ASSHRESULT="$(screen -Q select ${HOSTACTLIST[$SELECTION]})"
+#						if [[ -n "$ASSHRESULT" ]]; then
+#								screen -t ${HOSTACTLIST[$SELECTION]} bash -c "bash ${ASSH_SCRIPT_PATH}/assh.bash ${HOSTACTLIST[$SELECTION]}"
+#						fi
 						# Newtab/Connection condition
 						if [[ "$WINDOW_REUSE" = "1" ]]; then
 							# This block attempts to load an existing window. If not found, it opens one.
 							# In my experience, it will re-open the last window you used with that name (rather than the first, last, etc).
-							ASSHRESULT="$(screen -Q select ${OPTIONS[$SELECTION]})"
+							ASSHRESULT="$(screen -Q select ${HOSTACTLIST[$SELECTION]})"
 							if [[ -n "$ASSHRESULT" ]]; then
-									screen -t ${OPTIONS[$SELECTION]} bash -c "bash ${ASSH_SCRIPT_PATH}/assh.bash ${OPTIONS[$SELECTION]}"
+									screen -t ${HOSTACTLIST[$SELECTION]} bash -c "bash ${ASSH_SCRIPT_PATH}/assh.bash ${HOSTACTLIST[$SELECTION]}"
 							fi
 						else
 							# This block will open a new window every time
-							screen -t ${OPTIONS[$SELECTION]} bash -c "bash ${ASSH_SCRIPT_PATH}/assh.bash ${OPTIONS[$SELECTION]}"
+							screen -t ${HOSTACTLIST[$SELECTION]} bash -c "bash ${ASSH_SCRIPT_PATH}/assh.bash ${HOSTACTLIST[$SELECTION]}"
 						fi
 					fi
 				;;
+#				[0-9]*)
+#					# if condition to determine if I need a new screen tab, or just to start RDP
+#					if [[ "${OPTIONS[$SELECTION]}" =~ bash$ ]]; then
+#						screen -t ${OPTIONS[$SELECTION]} bash -c "bash ${USER_SCRIPT_PATH}/${OPTIONS[$SELECTION]}; echo; echo; read -p 'Continue (end)...'"
+#					elif [[ "${OPTIONS[$SELECTION]}" =~ expect$ ]]; then
+#						screen -t ${OPTIONS[$SELECTION]} bash -c "expect ${USER_SCRIPT_PATH}/${OPTIONS[$SELECTION]}; echo; echo; read -p 'Continue (end)...'"
+#					elif [[ "${OPTIONS[$SELECTION]}" =~ ^rdp ]]; then
+#						while [ -z "${ACE_RDP_PASSWORD}" ]; do
+#							read -s -p "Enter RDP Password: " ACE_RDP_PASSWORD
+#							echo
+#						done
+#						echo
+#						echo "1: 1279x683 2: 2550x1355"
+#						read -s -p "Choose Res: " ACE_RDP_RES_SELECT
+#						case $ACE_RDP_RES_SELECT in
+#							1)
+#								ACE_RDP_RES="1279x683"
+#							;;
+#							2)
+#								ACE_RDP_RES="2550x1355"
+#							;;
+#							*)
+#								ACE_RDP_RES="1279x683"
+#							;;
+#						esac
+#						# The hostname it will attempt to connect to is the named entry in ssh/config minus the "rdp_" prefix
+#						RDP_CMD="xfreerdp /clipboard /size:${ACE_RDP_RES} /u:${RDP_USERNAME} /p:${ACE_RDP_PASSWORD} /v:$(echo "${OPTIONS[$SELECTION]}" | sed 's/^rdp_//')"
+#						echo $RDP_CMD | sed 's/\/p:.*/\/p:******/g'
+#						read -p "Continue? (enter|ctrl+c)"
+#						screen -t ${OPTIONS[$SELECTION]} bash -c "$RDP_CMD"
+#					else
+#						# Newtab/Connection condition
+#						if [[ "$WINDOW_REUSE" = "1" ]]; then
+#							# This block attempts to load an existing window. If not found, it opens one.
+#							# In my experience, it will re-open the last window you used with that name (rather than the first, last, etc).
+#							ASSHRESULT="$(screen -Q select ${OPTIONS[$SELECTION]})"
+#							if [[ -n "$ASSHRESULT" ]]; then
+#									screen -t ${OPTIONS[$SELECTION]} bash -c "bash ${ASSH_SCRIPT_PATH}/assh.bash ${OPTIONS[$SELECTION]}"
+#							fi
+#						else
+#							# This block will open a new window every time
+#							screen -t ${OPTIONS[$SELECTION]} bash -c "bash ${ASSH_SCRIPT_PATH}/assh.bash ${OPTIONS[$SELECTION]}"
+#						fi
+#					fi
+#				;;
 				*)
 					echo "Invalid input..."
 					read -p ''
