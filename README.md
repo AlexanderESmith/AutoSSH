@@ -54,9 +54,9 @@ Shows all servers in your ~/.ssh/config and ~/.ssh/config.d file(s) and gives yo
 * Since `~/.ssh/config.d/` was added, editing the file with `e` basically stopped working (since it only edits `~/.ssh/config`)
 
 # Todo
-[x] Add toggle for opening the existing tab or intentionally opening a new one
-[ ] Maybe change the name from AutoSSH (because **ass**h, and also it supports more than just SSH)
-[ ] Add a toggle for verbose output (to troubleshoot newly added servers
-[ ] Expand config.d handling to handle sub-directories (right now it's only looking at files directly in ~/.ssh/config.d/
-[ ] Allow for multiple user script directories
-[ ] Allow the user to define what a "script" is (right now I'm assuming that it's exclusively bash scripts, which is bad). May add detection for anything in the user script directories that's +x, and run it with ./ instead of bash (et al).
+- [x] Add toggle for opening the existing tab or intentionally opening a new one
+- [ ] Maybe change the name from AutoSSH (because **ass**h, and also it supports more than just SSH)
+- [ ] Add a toggle for verbose output (to troubleshoot newly added servers
+- [ ] Expand config.d handling to handle sub-directories (right now it's only looking at files directly in ~/.ssh/config.d/
+- [ ] Allow for multiple user script directories
+- [ ] Allow the user to define what a "script" is (right now I'm assuming that it's exclusively bash scripts, which is bad). May add detection for anything in the user script directories that's +x, and run it with ./ instead of bash (et al).
