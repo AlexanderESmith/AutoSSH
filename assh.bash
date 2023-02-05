@@ -22,7 +22,27 @@ if [[ ! -f ~/.assh/config  ]]; then
 	echo "$ASSH_DEFAULT_CONFIG" > ~/.assh/config
 fi
 
+
 source ~/.assh/config
+
+CRITICAL_ERROR_OUTPUT=""
+
+if [[ ! -d ${ASSH_SCRIPT_PATH} ]]; then
+	CRITICAL_ERROR_OUTPUT+="Critical: ASSH_SCRIPT_PATH does not point to an existing folder. Check ~/.assh/config"$'\n'
+	CRITICAL_ERROR_FLAG=1
+fi
+
+
+if [[ ! -d ${USER_SCRIPT_PATH} ]]; then
+	CRITICAL_ERROR_OUTPUT+="Critical: USER_SCRIPT_PATH does not point to an existing folder. Check ~/.assh/config"$'\n'
+	CRITICAL_ERROR_FLAG=1
+fi
+
+if [[ "$CRITICAL_ERROR_FLAG" == "1" ]]; then
+	echo "${CRITICAL_ERROR_OUTPUT}"
+	exit 1
+fi
+
 
 # Future code to detect whether ASSH is running in screen (it should be)
 #	This code isn't tested. It probably won't work.
@@ -257,6 +277,8 @@ if [[ -z $1 ]]; then
 #							screen -t ${HOSTACTLIST[$SELECTION]} bash -c "bash ${ASSH_SCRIPT_PATH}/assh.bash ${HOSTACTLIST[$SELECTION]}"
 #					fi
 					# Newtab/Connection condition
+					#echo "DEBUG: ${HOSTACTLIST[$SELECTION]}"
+					#echo "DEBUG: bash ${ASSH_SCRIPT_PATH}/assh.bash ${HOSTACTLIST[$SELECTION]}"
 					if [[ "$WINDOW_REUSE" = "1" ]]; then
 						# This block attempts to load an existing window. If not found, it opens one.
 						# In my experience, it will re-open the last window you used with that name (rather than the first, last, etc).
