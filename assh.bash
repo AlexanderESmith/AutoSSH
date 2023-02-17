@@ -2,7 +2,7 @@
 
 # Where necessary, update the shebang above.
 #       It should be bash, not tsch, csh, or sh.
- 
+# lol 
 if [[ ! -f ~/.assh/config  ]]; then
 	mkdir -p ~/.assh
 	ASSH_DEFAULT_CONFIG=""
